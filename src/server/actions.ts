@@ -8,6 +8,17 @@ import { seedDefaults } from "@/server/seed";
 
 seedDefaults();
 
+function toFiniteNumber(value: unknown) {
+  const parsed =
+    typeof value === "number"
+      ? value
+      : typeof value === "string"
+        ? Number.parseFloat(value)
+        : Number.NaN;
+
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+
 export async function getDashboardData() {
   const totalCitations = db.select({ value: count() }).from(citations).get()?.value ?? 0;
   const totalUnpaid =
@@ -57,7 +68,7 @@ export async function getDashboardData() {
   return {
     totalCitations,
     totalUnpaid,
-    totalCollected: totalCollected ?? 0,
+    totalCollected: toFiniteNumber(totalCollected),
     officerCount,
     violationCount,
     recentCitations,
