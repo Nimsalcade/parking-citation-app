@@ -16,6 +16,8 @@ export function StatCards() {
     refreshInterval: 30_000,
   });
 
+  const totalCollected = toFiniteNumber(data?.totalCollected);
+
   const stats = [
     {
       label: "Total Citations",
