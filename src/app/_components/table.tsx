@@ -11,23 +11,11 @@ type CitationRow = {
   citationNumber: string;
   issuedAt: string;
   location: string;
-  amountDue: number | string | null;
+  amountDue: number;
   status: CitationStatus;
 };
 
 const PAGE_SIZE = 8;
-
-
-function toFiniteNumber(value: unknown) {
-  const parsed =
-    typeof value === "number"
-      ? value
-      : typeof value === "string"
-        ? Number.parseFloat(value)
-        : Number.NaN;
-
-  return Number.isFinite(parsed) ? parsed : 0;
-}
 
 export function CitationsTable({ onSelect }: { onSelect: (id: number) => void }) {
   const { data, mutate, isLoading } = useSWR<CitationRow[]>("/api/citations", fetcher, {
@@ -139,7 +127,7 @@ export function CitationsTable({ onSelect }: { onSelect: (id: number) => void })
                 <td className="px-4 py-3 text-sm font-medium text-slate-900">{citation.citationNumber}</td>
                 <td className="px-4 py-3 text-sm text-slate-600">{new Date(citation.issuedAt).toLocaleString()}</td>
                 <td className="px-4 py-3 text-sm text-slate-600">{citation.location}</td>
-                <td className="px-4 py-3 text-sm text-slate-900">${toFiniteNumber(citation.amountDue).toFixed(2)}</td>
+                <td className="px-4 py-3 text-sm text-slate-900">${citation.amountDue.toFixed(2)}</td>
                 <td className="px-4 py-3">
                   <select
                     value={citation.status}
