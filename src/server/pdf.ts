@@ -2,6 +2,17 @@ import PDFDocument from "pdfkit";
 import { citations, officers, vehicles, violations, db } from "@/db";
 import { eq } from "drizzle-orm";
 
+function toFiniteNumber(value: unknown) {
+  const parsed =
+    typeof value === "number"
+      ? value
+      : typeof value === "string"
+        ? Number.parseFloat(value)
+        : Number.NaN;
+
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+
 export async function generateCitationPdf(citationId: number) {
   const citation = db
     .select({
@@ -47,7 +58,8 @@ export async function generateCitationPdf(citationId: number) {
   doc.text(`Issued At: ${citation.issuedAt || "N/A"}`);
   doc.text(`Location: ${citation.location}`);
   doc.text(`Status: ${citation.status}`);
-  doc.text(`Amount Due: $${citation.amountDue.toFixed(2)}`);
+  const amountDue = toFiniteNumber(citation.amountDue);
+  doc.text(`Amount Due: $${amountDue.toFixed(2)}`);
   doc.text(`Due Date: ${citation.dueDate ?? "N/A"}`).moveDown();
 
   doc.fontSize(14).text("Officer", { underline: true });
@@ -69,7 +81,7 @@ export async function generateCitationPdf(citationId: number) {
   doc.fontSize(12);
   doc.text(`Code: ${citation.violationCode}`);
   doc.text(`Description: ${citation.violationDescription}`);
-  const fineAmount = citation.fineAmount ?? 0;
+  const fineAmount = toFiniteNumber(citation.fineAmount);
   doc.text(`Fine Amount: $${fineAmount.toFixed(2)}`).moveDown();
 
   if (citation.notes) {
