@@ -6,21 +6,10 @@ import useSWR from "swr";
 type StatsResponse = {
   totalCitations: number;
   totalUnpaid: number;
-  totalCollected: number | string | null;
+  totalCollected: number;
   officerCount: number;
   violationCount: number;
 };
-
-function toFiniteNumber(value: unknown) {
-  const parsed =
-    typeof value === "number"
-      ? value
-      : typeof value === "string"
-        ? Number.parseFloat(value)
-        : Number.NaN;
-
-  return Number.isFinite(parsed) ? parsed : 0;
-}
 
 export function StatCards() {
   const { data, isLoading } = useSWR<StatsResponse>("/api/stats", fetcher, {
@@ -44,7 +33,7 @@ export function StatCards() {
     },
     {
       label: "Total Collected",
-      value: `$${totalCollected.toFixed(2)}`,
+      value: `$${(data?.totalCollected ?? 0).toFixed(2)}`,
       tone: "bg-emerald-50 text-emerald-700",
       emoji: "💳",
     },
